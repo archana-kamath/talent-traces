@@ -1,0 +1,32 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node ./server.js",
+    "build": "webpack --mode development"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1024.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.3",
+    "express-fileupload": "^1.2.1",
+    "fs": "0.0.1-security",
+    "fs-extra": "^10.0.1",
+    "multer": "^1.4.3",
+    "multer-s3": "^2.10.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.15",
+    "path": "^0.12.7",
+    "promise-mysql": "^5.2.0"
+  },
+  "devDependencies": {
+    "dotenv-webpack": "^7.0.3",
+    "webpack": "^5.59.0",
+    "webpack-cli": "^4.9.1"
+  }
+}

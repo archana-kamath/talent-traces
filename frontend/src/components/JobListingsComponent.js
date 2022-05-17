@@ -1,0 +1,134 @@
+import React, { Component } from 'react';
+import { Card, Row, Col, CardHeader, CardText, CardBody, CardFooter, Button, Table } from 'reactstrap';
+import axios from 'axios';
+import urls from "./utils";
+import '../App.css';
+import Header from './Header';
+import SubmitJob from './SubmitJob';
+import Amplify, { Auth } from 'aws-amplify';
+import awsconfig from '../aws-exports';
+import '../shared/AddJob.css';
+
+Auth.configure(awsconfig);
+
+var em =''
+
+class JobListings extends Component {
+  
+  constructor(props){
+    super(props);
+
+    this.state = {
+      userid:'',
+      jobid:'',
+      appliedOn:'',
+      jobs:[],
+      isAdmin: false
+    }
+  }
+
+  componentDidMount(){
+    if(this.state.isAdmin==false){
+      
+      axios.post(urls.backendURL+'/viewJob', {
+      }).then(response => response.data).then((data) => {
+          this.setState({jobs:data.data});
+      });
+    }
+
+    var useremail = ''
+    var email = ''
+
+
+  Auth.currentAuthenticatedUser().then(function(result){
+        console.log("In app.js")
+        console.log(result.attributes.email)
+        em = result.attributes.email
+         console.log("set to em")
+         console.log(em)
+      });
+
+    if(em=='' || em==null) {
+
+    Auth.currentSession().then(function(data) {
+        console.log("in session code...")
+        let idToken = data.getIdToken();
+        console.dir(idToken);
+        email = idToken.payload.email;
+        console.log("print email....")
+
+        console.log(email);
+        em = email;
+        console.log(em);
+    });
+   }
+
+  }
+
+  applyToJob = (e, index) => {
+
+    this.setState({ jobid: index });
+
+     axios.post(urls.backendURL+'/apply', { userid: localStorage.getItem("email"),
+     jobid: index, 
+     appliedOn: new Date().toISOString().substring(0,10)})
+     .then(response => response.data).then((data) => {
+       alert("Thanks for applying! You will hear back from us soon!!");
+       console.log(data)
+      console.log("After set state")
+   });
+}
+
+  render(){
+    
+    return(<React.Fragment>
+
+      {this.state.isAdmin===true?(
+      <SubmitJob></SubmitJob>
+      ):(
+        <div>
+         
+        <Header></Header><br/>
+        <Row xs={1} md={2} className="g-4">
+            {this.state.jobs.map((job,index) => (
+                
+                <Card className='card-style listing g-4'>
+                <CardBody>
+                  <CardHeader dark className="bg-dark text-white" >
+                    {job.company}
+                  </CardHeader>
+                  <CardText>
+                      {job.jobTitle}
+                      <br/>
+                      Job Id: {job.jobid}
+                      <br/>
+                      {job.jobDesc}
+                      <br/>
+                      {job.postedBy}
+                      <br/>
+                      {job.postedOn}
+                      <br/>
+                      Exp: {job.yoe}
+                      <br/>
+                      {job.jobLocation}
+                      <br/>
+                      {job.jobType}
+                       <br/>
+                  </CardText>
+                  <CardFooter dark className="bg-dark text-white">
+                    <Button  onClick={e => this.applyToJob(e,job.jobid)}>Apply</Button>
+                  </CardFooter>
+                 </CardBody>
+              </Card>
+      
+              ))}
+               </Row> 
+            </div> 
+           
+      
+      )}
+    </React.Fragment>);
+  }
+}
+
+export default JobListings;
